@@ -1,9 +1,10 @@
 use clap::Parser as _;
-use ecb_exchange::{cli::Cli, models::ExchangeRateResult};
 use reqwest::{Client, IntoUrl};
 use std::{borrow::BorrowMut, collections::HashMap, error::Error, process::ExitCode};
 
-use ecb_exchange::parsing::parse;
+use ecb_rates::cli::{Cli, FormatOption};
+use ecb_rates::models::ExchangeRateResult;
+use ecb_rates::parsing::parse;
 
 async fn get_and_parse(url: impl IntoUrl) -> Result<Vec<ExchangeRateResult>, Box<dyn Error>> {
     let client = Client::new();
@@ -42,7 +43,7 @@ async fn main() -> ExitCode {
     }
 
     let output = match cli.command {
-        ecb_exchange::cli::FormatOption::Json => {
+        FormatOption::Json => {
             let mut json_values = parsed
                 .iter()
                 .map(|x| serde_json::to_value(x).expect("Failed to parse content as JSON value"))
@@ -63,7 +64,7 @@ async fn main() -> ExitCode {
             }
             .expect("Failed to parse content as JSON")
         }
-        ecb_exchange::cli::FormatOption::Plain => {
+        FormatOption::Plain => {
             struct StringCur<'a> {
                 time: &'a String,
                 cur: String,

@@ -1,5 +1,5 @@
 [package]
-name = "ecb-exchange"
+name = "ecb-rates"
 version = "0.1.0"
 edition = "2021"
 
