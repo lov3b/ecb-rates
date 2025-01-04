@@ -40,7 +40,13 @@ async fn main() -> ExitCode {
     };
 
     if !cli.currencies.is_empty() {
-        filter_currencies(&mut parsed, &cli.currencies);
+        let currencies = cli
+            .currencies
+            .iter()
+            .map(|x| x.to_uppercase())
+            .collect::<Vec<_>>();
+
+        filter_currencies(&mut parsed, &currencies);
     }
 
     let output = match cli.command {
