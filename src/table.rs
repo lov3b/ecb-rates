@@ -1,11 +1,13 @@
 use colored::*;
 use std::fmt::Display;
 
-struct Table {
+use crate::models::ExchangeRateResult;
+
+pub struct Table {
     header: Option<String>,
     column_left: String,
     column_right: String,
-    rows: Vec<String>,
+    rows: Vec<(String, String)>,
     pub color: bool,
     pub width: usize,
 }
@@ -31,8 +33,7 @@ impl Table {
     }
 
     fn add_row(&mut self, row_left: String, row_right: String) {
-        self.rows.push(row_left);
-        self.rows.push(row_right);
+        self.rows.push((row_left, row_right));
     }
 }
 
@@ -44,33 +45,41 @@ impl Display for Table {
             let middle_padding = " ".repeat(middle_padding_amount);
             writeln!(
                 f,
-                "{}{}{}\n",
+                "{}{}{}",
                 middle_padding,
                 header.bold().cyan(),
                 middle_padding
             )?;
         }
 
-        let right_padding_amount = self.width - self.column_left.len();
+        let right_padding_amount = self.width - self.column_left.len() - self.column_right.len();
         let right_padding = " ".repeat(right_padding_amount);
         writeln!(
             f,
-            "{}{}{}\n",
+            "{}{}{}",
             self.column_left.bold().yellow(),
             right_padding,
             self.column_right.bold().yellow()
         )?;
-        writeln!(f, "{}\n", "-".repeat(self.width))?;
+        writeln!(f, "{}", "-".repeat(self.width))?;
 
-        for i in 1..(self.rows.len() - 2) {
-            let left = &self.rows[i];
-            let right = &self.rows[i + 1];
-
-            let padding_amount = (self.width - left.len() - right.len()) / 2;
+        for (left, right) in self.rows.iter() {
+            let padding_amount = self.width - left.len() - right.len();
             let padding = " ".repeat(padding_amount);
-            writeln!(f, "{}{}{}\n", left.bold().green(), padding, right)?;
+            writeln!(f, "{}{}{}", left.bold().green(), padding, right)?;
         }
 
-        todo!()
+        Ok(())
+    }
+}
+
+impl From<ExchangeRateResult> for Table {
+    fn from(value: ExchangeRateResult) -> Self {
+        let mut table = Table::new(Some(value.time), "Currency".to_string(), "Rate".to_string());
+        for (key, val) in value.rates.into_iter() {
+            table.add_row(key, val.to_string());
+        }
+
+        table
     }
 }
