@@ -5,6 +5,7 @@ use std::{borrow::BorrowMut, collections::HashMap, error::Error, process::ExitCo
 use ecb_rates::cli::{Cli, FormatOption};
 use ecb_rates::models::ExchangeRateResult;
 use ecb_rates::parsing::parse;
+use ecb_rates::table::Table;
 
 async fn get_and_parse(url: impl IntoUrl) -> Result<Vec<ExchangeRateResult>, Box<dyn Error>> {
     let client = Client::new();
@@ -64,42 +65,14 @@ async fn main() -> ExitCode {
             }
             .expect("Failed to parse content as JSON")
         }
-        FormatOption::Plain => {
-            struct StringCur<'a> {
-                time: &'a String,
-                cur: String,
-            }
-
-            let separator = if cli.compact { ", " } else { "\n" };
-
-            let string_curred = parsed.iter().map(|entry| {
-                let s = entry
-                    .rates
-                    .iter()
-                    .map(|(cur, rate)| format!("{}: {}", cur, rate))
-                    .collect::<Vec<_>>()
-                    .join(&separator);
-
-                StringCur {
-                    time: &entry.time,
-                    cur: s,
-                }
-            });
-
-            let time_sep = if cli.compact { ": " } else { "\n" };
-            let mut buf = String::new();
-            for sc in string_curred {
-                if cli.display_time {
-                    buf.push_str(&sc.time);
-                    buf.push_str(time_sep);
-                }
-                buf.push_str(&sc.cur);
-                buf.push_str(&separator);
-                buf.push('\n');
-            }
-
-            buf
-        }
+        FormatOption::Plain => parsed
+            .into_iter()
+            .map(|x| {
+                let t: Table = x.into();
+                format!("{}", t)
+            })
+            .collect::<Vec<_>>()
+            .join("\n"),
     };
 
     println!("{}", &output);

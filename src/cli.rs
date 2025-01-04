@@ -14,7 +14,7 @@ pub struct Cli {
     pub command: FormatOption,
 
     /// Show the time in the output
-    #[arg(long = "display-time")]
+    #[arg(long = "display-time", default_value_t = true)]
     pub display_time: bool,
 
     /// Print currencies in a compact single line
