@@ -1,6 +1,7 @@
 pub mod cli;
 pub mod parsing;
 pub mod models;
+pub mod table;
 
 pub mod ecb_url {
     pub const TODAY: &'static str = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml";

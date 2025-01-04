@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.95"
 clap = { version = "4.5.23", features = ["derive"] }
+colored = "2.2.0"
 quick-xml = { version = "0.37.2", features = ["async-tokio", "tokio"] }
 reqwest = "0.12.12"
 serde = { version = "1.0.217", features = ["derive", "rc"] }
