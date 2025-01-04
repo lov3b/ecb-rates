@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+anyhow = "1.0.95"
 clap = { version = "4.5.23", features = ["derive"] }
 quick-xml = { version = "0.37.2", features = ["async-tokio", "tokio"] }
 reqwest = "0.12.12"
