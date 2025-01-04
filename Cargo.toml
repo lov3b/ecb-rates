@@ -1,0 +1,12 @@
+[package]
+name = "ecb-exchange"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.5.23", features = ["derive"] }
+quick-xml = { version = "0.37.2", features = ["async-tokio", "tokio"] }
+reqwest = "0.12.12"
+serde = { version = "1.0.217", features = ["derive", "rc"] }
+serde_json = "1.0.134"
+tokio = { version = "1.42.0", features = ["macros"] }
