@@ -62,12 +62,11 @@ impl Cache {
             .context("Failed to get config home")?
             .get_config_path()?;
         fs::create_dir_all(&config_path)?;
-        eprintln!("Config dir: {}", &config_path.display());
 
         config_path.push(FILE_NAME);
-        eprintln!("File to write: {}", &config_path.display());
 
         let file = fs::File::options()
+            .write(true)
             .create(true)
             .truncate(true)
             .open(&config_path)?;
