@@ -24,10 +24,12 @@ impl Table {
         }
     }
 
+    #[allow(dead_code)]
     fn disable_header(&mut self) {
         self.header = None
     }
 
+    #[allow(dead_code)]
     fn set_header(&mut self, header: String) {
         self.header = Some(header);
     }
