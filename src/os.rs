@@ -11,15 +11,11 @@ pub enum Os {
 
 impl Os {
     pub fn get_current() -> Option<Self> {
-        let os_str = env::consts::OS;
-        if os_str == "windows" {
-            Some(Os::Windows)
-        } else if os_str == "macos" {
-            Some(Os::Mac)
-        } else if os_str == "linux" || os_str.contains("bsd") {
-            Some(Os::Unix)
-        } else {
-            None
+        match env::consts::OS {
+            "windows" => Some(Self::Windows),
+            "macos" => Some(Self::Mac),
+            os_str if os_str == "linux" || os_str.contains("bsd") => Some(Self::Unix),
+            _ => None,
         }
     }
 
