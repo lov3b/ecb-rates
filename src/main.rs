@@ -85,7 +85,8 @@ async fn main() -> ExitCode {
         FormatOption::Plain => parsed
             .iter()
             .map(|x| {
-                let t: Table = x.clone().into();
+                let mut t: Table = x.clone().into();
+                t.sort();
                 format!("{}", t)
             })
             .collect::<Vec<_>>()

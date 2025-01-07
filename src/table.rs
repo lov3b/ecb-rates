@@ -37,6 +37,10 @@ impl Table {
     fn add_row(&mut self, row_left: String, row_right: String) {
         self.rows.push((row_left, row_right));
     }
+
+    pub fn sort(&mut self) {
+        self.rows.sort_by(|a, b| a.1.cmp(&b.1))
+    }
 }
 
 impl Display for Table {
