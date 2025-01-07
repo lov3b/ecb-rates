@@ -1,7 +1,10 @@
 pub mod cli;
-pub mod parsing;
 pub mod models;
+pub mod os;
+pub mod parsing;
 pub mod table;
+
+const APP_NAME: &'static str = "ECB-rates";
 
 pub mod ecb_url {
     pub const TODAY: &'static str = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml";
