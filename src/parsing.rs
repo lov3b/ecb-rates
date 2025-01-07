@@ -1,12 +1,11 @@
 use std::collections::HashMap;
-use std::error::Error;
 
 use quick_xml::events::Event;
 use quick_xml::Reader;
 
 use crate::models::ExchangeRateResult;
 
-pub fn parse(xml: &str) -> Result<Vec<ExchangeRateResult>, Box<dyn Error>> {
+pub fn parse(xml: &str) -> anyhow::Result<Vec<ExchangeRateResult>> {
     let mut reader = Reader::from_str(xml);
     reader.config_mut().trim_text(true);
 
@@ -21,7 +20,7 @@ pub fn parse(xml: &str) -> Result<Vec<ExchangeRateResult>, Box<dyn Error>> {
         inside_cube_time: &mut bool,
         current_rates: &mut HashMap<String, f64>,
         results: &mut Vec<ExchangeRateResult>,
-    ) -> Result<(), Box<dyn Error>> {
+    ) -> anyhow::Result<()> {
         if e.name().local_name().as_ref() != b"Cube" {
             return Ok(());
         }

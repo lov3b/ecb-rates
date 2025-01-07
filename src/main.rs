@@ -1,14 +1,14 @@
 use clap::Parser as _;
 use ecb_rates::cache::Cache;
 use reqwest::{Client, IntoUrl};
-use std::{borrow::BorrowMut, collections::HashMap, error::Error, process::ExitCode};
+use std::{borrow::BorrowMut, collections::HashMap, process::ExitCode};
 
 use ecb_rates::cli::{Cli, FormatOption};
 use ecb_rates::models::ExchangeRateResult;
 use ecb_rates::parsing::parse;
 use ecb_rates::table::Table;
 
-async fn get_and_parse(url: impl IntoUrl) -> Result<Vec<ExchangeRateResult>, Box<dyn Error>> {
+async fn get_and_parse(url: impl IntoUrl) -> anyhow::Result<Vec<ExchangeRateResult>> {
     let client = Client::new();
     let xml_content = client.get(url).send().await?.text().await?;
     parse(&xml_content)
