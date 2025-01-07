@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.95"
+chrono = { version = "0.4.39", features = ["serde"] }
 clap = { version = "4.5.23", features = ["derive"] }
 colored = "2.2.0"
 quick-xml = { version = "0.37.2", features = ["async-tokio", "tokio"] }

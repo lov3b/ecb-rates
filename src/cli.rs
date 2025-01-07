@@ -21,6 +21,10 @@ pub struct Cli {
     #[arg(long = "compact")]
     pub compact: bool,
 
+    /// Override the cache
+    #[arg(long = "no-cache")]
+    pub no_cache: bool,
+
     /// Amount of data
     #[arg(value_enum, default_value_t = Resolution::TODAY, long="resolution", short='r')]
     pub resolution: Resolution,

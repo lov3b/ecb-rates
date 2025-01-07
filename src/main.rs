@@ -1,4 +1,5 @@
 use clap::Parser as _;
+use ecb_rates::cache::Cache;
 use reqwest::{Client, IntoUrl};
 use std::{borrow::BorrowMut, collections::HashMap, error::Error, process::ExitCode};
 
@@ -30,12 +31,18 @@ fn filter_currencies(exchange_rate_results: &mut [ExchangeRateResult], currencie
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> ExitCode {
     let cli = Cli::parse();
-
-    let mut parsed = match get_and_parse(cli.resolution.to_ecb_url()).await {
-        Ok(k) => k,
-        Err(e) => {
-            eprintln!("Failed to get/parse data from ECB: {}", e);
-            return ExitCode::FAILURE;
+    let use_cache = !cli.no_cache;
+    let cache = if use_cache { Cache::load() } else { None };
+    let cache_ok = cache.as_ref().map_or_else(|| false, |c| c.validate());
+    let mut parsed = if cache_ok {
+        cache.as_ref().unwrap().exchange_rate_results.clone()
+    } else {
+        match get_and_parse(cli.resolution.to_ecb_url()).await {
+            Ok(k) => k,
+            Err(e) => {
+                eprintln!("Failed to get/parse data from ECB: {}", e);
+                return ExitCode::FAILURE;
+            }
         }
     };
 
@@ -72,9 +79,9 @@ async fn main() -> ExitCode {
             .expect("Failed to parse content as JSON")
         }
         FormatOption::Plain => parsed
-            .into_iter()
+            .iter()
             .map(|x| {
-                let t: Table = x.into();
+                let t: Table = x.clone().into();
                 format!("{}", t)
             })
             .collect::<Vec<_>>()
@@ -82,5 +89,10 @@ async fn main() -> ExitCode {
     };
 
     println!("{}", &output);
+    if !cache_ok {
+        if let Err(e) = Cache::new(parsed).save() {
+            eprintln!("Failed to save to cache with: {:?}", e);
+        }
+    }
     ExitCode::SUCCESS
 }
