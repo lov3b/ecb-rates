@@ -41,13 +41,19 @@ async fn main() -> ExitCode {
     let mut parsed = if cache_ok {
         cache.as_ref().unwrap().exchange_rate_results.clone()
     } else {
-        match get_and_parse(cli.resolution.to_ecb_url()).await {
+        let parsed = match get_and_parse(cli.resolution.to_ecb_url()).await {
             Ok(k) => k,
             Err(e) => {
                 eprintln!("Failed to get/parse data from ECB: {}", e);
                 return ExitCode::FAILURE;
             }
+        };
+        if !cache_ok {
+            if let Err(e) = Cache::new(parsed.clone()).save() {
+                eprintln!("Failed to save to cache with: {:?}", e);
+            }
         }
+        parsed
     };
 
     if !cli.currencies.is_empty() {
@@ -68,11 +74,12 @@ async fn main() -> ExitCode {
                 .collect::<Vec<_>>();
 
             if !cli.display_time {
-                for json_value in json_values.iter_mut() {
-                    if let Some(map) = json_value.as_object_mut() {
+                json_values
+                    .iter_mut()
+                    .filter_map(|json_value| json_value.as_object_mut())
+                    .for_each(|map| {
                         map.remove_entry("time");
-                    }
-                }
+                    });
             }
 
             if cli.compact {
@@ -94,10 +101,5 @@ async fn main() -> ExitCode {
     };
 
     println!("{}", &output);
-    if !cache_ok {
-        if let Err(e) = Cache::new(parsed).save() {
-            eprintln!("Failed to save to cache with: {:?}", e);
-        }
-    }
     ExitCode::SUCCESS
 }
