@@ -82,12 +82,12 @@ async fn main() -> ExitCode {
                     });
             }
 
-            if cli.compact {
-                serde_json::to_string(&json_values)
+            let to_string_json = if cli.compact {
+                serde_json::to_string
             } else {
-                serde_json::to_string_pretty(&json_values)
-            }
-            .expect("Failed to parse content as JSON")
+                serde_json::to_string_pretty
+            };
+            to_string_json(&json_values).expect("Failed to parse content as JSON")
         }
         FormatOption::Plain => parsed
             .iter()
