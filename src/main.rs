@@ -65,12 +65,24 @@ async fn main() -> ExitCode {
                 return ExitCode::FAILURE;
             }
         };
+
         if !cache_ok {
-            if let Some(cache_safe) = cache.as_mut() {
-                let cache_line = CacheLine::new(parsed.clone());
-                cache_safe.set_cache_line(cli.resolution, cache_line);
-                if let Err(e) = cache_safe.save() {
-                    eprintln!("Failed to save to cache with: {:?}", e);
+            let not_equal_cache = cache.as_ref().map_or_else(
+                || true,
+                |cache_local| {
+                    cache_local
+                        .get_cache_line(cli.resolution)
+                        .map_or_else(|| true, |cache_line| cache_line == &parsed)
+                },
+            );
+
+            if not_equal_cache {
+                if let Some(cache_safe) = cache.as_mut() {
+                    let cache_line = CacheLine::new(parsed.clone());
+                    cache_safe.set_cache_line(cli.resolution, cache_line);
+                    if let Err(e) = cache_safe.save() {
+                        eprintln!("Failed to save to cache with: {:?}", e);
+                    }
                 }
             }
         }

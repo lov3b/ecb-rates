@@ -9,7 +9,7 @@ use crate::Hollidays;
 
 const CET: FixedOffset = unsafe { FixedOffset::east_opt(3600).unwrap_unchecked() };
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct CacheLine {
     #[serde(with = "ts_seconds")]
     date: DateTime<Utc>,
@@ -86,6 +86,13 @@ impl CacheLine {
         }
     }
 }
+
+impl PartialEq<Vec<ExchangeRateResult>> for CacheLine {
+    fn eq(&self, other: &Vec<ExchangeRateResult>) -> bool {
+        &self.exchange_rate_results == other
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
