@@ -94,7 +94,7 @@ async fn main() -> ExitCode {
                 .map(|x| serde_json::to_value(x).expect("Failed to parse content as JSON value"))
                 .collect::<Vec<_>>();
 
-            if !cli.display_time {
+            if cli.no_time {
                 json_values
                     .iter_mut()
                     .filter_map(|json_value| json_value.as_object_mut())

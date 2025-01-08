@@ -13,9 +13,9 @@ pub struct Cli {
     #[arg(value_enum, default_value_t = FormatOption::Plain)]
     pub command: FormatOption,
 
-    /// Show the time in the output
-    #[arg(long = "display-time", default_value_t = true)]
-    pub display_time: bool,
+    /// Don't show time in output
+    #[arg(long = "no-time")]
+    pub no_time: bool,
 
     /// Print currencies in a compact single line
     #[arg(long = "compact")]
