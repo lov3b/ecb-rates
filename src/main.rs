@@ -45,7 +45,7 @@ async fn main() -> ExitCode {
         || false,
         |c| {
             c.get_cache_line(cli.resolution)
-                .map_or_else(|| false, |cl| cl.validate())
+                .map_or_else(|| false, |cl| cl.is_valid())
         },
     );
     let mut parsed = if cache_ok {
