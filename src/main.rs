@@ -6,7 +6,7 @@ use std::{borrow::BorrowMut, collections::HashMap, process::ExitCode};
 use ecb_rates::cli::{Cli, FormatOption};
 use ecb_rates::models::ExchangeRateResult;
 use ecb_rates::parsing::parse;
-use ecb_rates::table::Table;
+use ecb_rates::table::{TableRef, TableTrait};
 
 async fn get_and_parse(url: impl IntoUrl) -> anyhow::Result<Vec<ExchangeRateResult>> {
     let client = Client::new();
@@ -96,7 +96,7 @@ async fn main() -> ExitCode {
         FormatOption::Plain => parsed
             .iter()
             .map(|x| {
-                let mut t: Table = x.clone().into();
+                let mut t: TableRef = x.into();
                 t.sort();
                 format!("{}", t)
             })
