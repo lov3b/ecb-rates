@@ -114,6 +114,9 @@ async fn main() -> ExitCode {
             .iter()
             .map(|x| {
                 let mut t: TableRef = x.into();
+                if cli.no_time {
+                    t.disable_header();
+                }
                 t.sort(&cli.sort_by);
                 t.to_string()
             })
