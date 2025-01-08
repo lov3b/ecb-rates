@@ -5,6 +5,7 @@ pub mod models;
 pub mod os;
 pub mod parsing;
 pub mod table;
+pub mod utils_calc;
 
 pub use holiday::Hollidays;
 

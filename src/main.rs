@@ -1,35 +1,18 @@
 use clap::Parser as _;
 use ecb_rates::cache::{Cache, CacheLine};
 use reqwest::{Client, IntoUrl};
-use std::{borrow::BorrowMut, collections::HashMap, process::ExitCode};
+use std::process::ExitCode;
 
 use ecb_rates::cli::{Cli, FormatOption};
 use ecb_rates::models::ExchangeRateResult;
 use ecb_rates::parsing::parse;
 use ecb_rates::table::{TableRef, TableTrait as _};
+use ecb_rates::utils_calc::filter_currencies;
 
 async fn get_and_parse(url: impl IntoUrl) -> anyhow::Result<Vec<ExchangeRateResult>> {
     let client = Client::new();
     let xml_content = client.get(url).send().await?.text().await?;
     parse(&xml_content)
-}
-
-fn filter_currencies(exchange_rate_results: &mut [ExchangeRateResult], currencies: &[String]) {
-    for exchange_rate in exchange_rate_results {
-        let rates_ptr: *mut HashMap<String, f64> = &mut exchange_rate.rates;
-        exchange_rate
-            .rates
-            .keys()
-            .filter(|x| !currencies.contains(x))
-            .for_each(|key_to_remove| {
-                /* This is safe, since we:
-                 * 1. Already have a mutable reference.
-                 * 2. Don't run the code in paralell
-                 */
-                let rates = unsafe { (*rates_ptr).borrow_mut() };
-                rates.remove_entry(key_to_remove);
-            });
-    }
 }
 
 #[tokio::main(flavor = "current_thread")]
