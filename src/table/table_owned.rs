@@ -6,10 +6,10 @@ use super::table_display::helper_table_print;
 use super::{TableGet, TableTrait};
 
 pub struct Table {
-    header: Option<String>,
-    column_left: String,
-    column_right: String,
-    rows: Vec<(String, f64)>,
+    pub(super) header: Option<String>,
+    pub(super) column_left: String,
+    pub(super) column_right: String,
+    pub(super) rows: Vec<(String, f64)>,
     pub color: bool,
     pub width: usize,
 }

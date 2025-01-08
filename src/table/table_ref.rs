@@ -5,6 +5,7 @@ use crate::models::ExchangeRateResult;
 use super::table_display::helper_table_print;
 use super::table_getter::TableGet;
 use super::table_trait::TableTrait;
+use super::Table;
 
 pub struct TableRef<'a> {
     header: Option<&'a str>,
@@ -88,5 +89,24 @@ impl<'a> From<&'a ExchangeRateResult> for TableRef<'a> {
 impl<'a> Display for TableRef<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         helper_table_print(f, self)
+    }
+}
+
+impl<'a> From<&'a Table> for TableRef<'a> {
+    fn from(table: &'a Table) -> Self {
+        let rows = table
+            .rows
+            .iter()
+            .map(|(left, right)| (left.as_str(), *right))
+            .collect();
+
+        TableRef {
+            header: table.header.as_deref(),
+            column_left: table.column_left.as_str(),
+            column_right: table.column_right.as_str(),
+            rows,
+            color: table.color,
+            width: table.width,
+        }
     }
 }
