@@ -36,7 +36,7 @@ pub fn helper_table_print<T: TableGet>(
 
     for (left, right) in table.get_rows().iter() {
         let left_str = left.as_ref();
-        let right_str = right.to_string();
+        let right_str = format!("{:.5}", right);
         let padding_amount = width.saturating_sub(left_str.len() + right_str.len());
         let padding = " ".repeat(padding_amount);
         writeln!(f, "{}{}{}", left_str.bold().green(), padding, right_str)?;

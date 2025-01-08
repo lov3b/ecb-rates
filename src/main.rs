@@ -1,13 +1,14 @@
 use clap::Parser as _;
+use core::error;
 use ecb_rates::cache::{Cache, CacheLine};
-use reqwest::{Client, IntoUrl};
+use reqwest::{Client, IntoUrl, StatusCode};
 use std::process::ExitCode;
 
 use ecb_rates::cli::{Cli, FormatOption};
 use ecb_rates::models::ExchangeRateResult;
 use ecb_rates::parsing::parse;
 use ecb_rates::table::{TableRef, TableTrait as _};
-use ecb_rates::utils_calc::filter_currencies;
+use ecb_rates::utils_calc::{change_perspective, filter_currencies};
 
 async fn get_and_parse(url: impl IntoUrl) -> anyhow::Result<Vec<ExchangeRateResult>> {
     let client = Client::new();
@@ -71,6 +72,14 @@ async fn main() -> ExitCode {
         }
         parsed
     };
+
+    if let Some(currency) = cli.perspective {
+        let error_occured = change_perspective(&mut parsed, &currency).is_none();
+        if error_occured {
+            eprintln!("The currency wasn't in the data from the ECB!");
+            return ExitCode::FAILURE;
+        }
+    }
 
     if !cli.currencies.is_empty() {
         let currencies = cli
