@@ -47,8 +47,10 @@ pub enum SortBy {
 #[derive(Debug, Clone, Copy, ValueEnum)]
 pub enum Resolution {
     TODAY,
+    #[clap(name = "hist-90-days")]
     HistDays90,
-    HistDay,
+    #[clap(name = "hist-all-days")]
+    HistDaysAll,
 }
 
 impl Resolution {
@@ -56,7 +58,7 @@ impl Resolution {
         match self {
             Resolution::TODAY => ecb_url::TODAY,
             Resolution::HistDays90 => ecb_url::hist::DAYS_90,
-            Resolution::HistDay => ecb_url::hist::DAILY,
+            Resolution::HistDaysAll => ecb_url::hist::DAYS_ALL,
         }
     }
 }

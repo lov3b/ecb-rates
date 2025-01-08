@@ -55,7 +55,7 @@ impl Cache {
         match resolution {
             Resolution::TODAY => self.day.as_ref(),
             Resolution::HistDays90 => self.hist_90.as_ref(),
-            Resolution::HistDay => self.hist_day.as_ref(),
+            Resolution::HistDaysAll => self.hist_day.as_ref(),
         }
     }
 
@@ -64,7 +64,7 @@ impl Cache {
         match resolution {
             Resolution::TODAY => self.day = cache_line_opt,
             Resolution::HistDays90 => self.hist_90 = cache_line_opt,
-            Resolution::HistDay => self.hist_day = cache_line_opt,
+            Resolution::HistDaysAll => self.hist_day = cache_line_opt,
         }
     }
 
