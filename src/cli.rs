@@ -29,9 +29,19 @@ pub struct Cli {
     #[arg(long = "force-color")]
     pub force_color: bool,
 
+    /// Sort by the currency name (in alphabetical order), or by the rate value (low -> high)
+    #[arg(value_enum, long = "sort-by", short = 's', default_value_t = SortBy::Currency)]
+    pub sort_by: SortBy,
+
     /// Amount of data
     #[arg(value_enum, default_value_t = Resolution::TODAY, long="resolution", short='r')]
     pub resolution: Resolution,
+}
+
+#[derive(Debug, Clone, Copy, ValueEnum)]
+pub enum SortBy {
+    Currency,
+    Rate,
 }
 
 #[derive(Debug, Clone, Copy, ValueEnum)]
@@ -47,6 +57,15 @@ impl Resolution {
             Resolution::TODAY => ecb_url::TODAY,
             Resolution::HistDays90 => ecb_url::hist::DAYS_90,
             Resolution::HistDay => ecb_url::hist::DAILY,
+        }
+    }
+}
+
+impl SortBy {
+    pub fn get_comparer(&self) -> fn(&(&str, f64), &(&str, f64)) -> std::cmp::Ordering {
+        match self {
+            Self::Currency => |a, b| a.0.cmp(&b.0),
+            Self::Rate => |a, b| a.1.total_cmp(&b.1),
         }
     }
 }

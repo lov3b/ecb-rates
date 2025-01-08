@@ -1,5 +1,6 @@
 use std::fmt::Display;
 
+use crate::cli::SortBy;
 use crate::models::ExchangeRateResult;
 
 use super::table_display::helper_table_print;
@@ -49,8 +50,9 @@ impl<'a> TableTrait<'a> for TableRef<'a> {
         self.rows.push((row_left, row_right));
     }
 
-    fn sort(&mut self) {
-        self.rows.sort_by(|a, b| a.1.total_cmp(&b.1));
+    fn sort(&mut self, sort_by: &SortBy) {
+        let comparer = sort_by.get_comparer();
+        self.rows.sort_by(comparer);
     }
 }
 
