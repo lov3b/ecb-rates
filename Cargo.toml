@@ -1,7 +1,28 @@
 [package]
 name = "ecb-rates"
+description = "Query exchange rates from the European Central Bank (ECB)"
 version = "0.1.0"
 edition = "2021"
+authors = ["Love Billenius <lovebillenius@disroot.org>"]
+license-file = "LICENSE"
+keywords = [
+    "ECB",
+    "European Central Bank",
+    "Bank",
+    "Central Bank",
+    "exchange",
+    "rates",
+    "eur",
+    "sek",
+    "usd",
+    "nok",
+    "gbp",
+    "pln",
+    "dkk",
+    "czk",
+    "isk",
+    "chf",
+]
 
 [[bin]]
 name = "ecb-rates"
