@@ -1,12 +1,12 @@
 use clap::Parser as _;
-use ecb_rates::cache::Cache;
+use ecb_rates::cache::{Cache, CacheLine};
 use reqwest::{Client, IntoUrl};
 use std::{borrow::BorrowMut, collections::HashMap, process::ExitCode};
 
 use ecb_rates::cli::{Cli, FormatOption};
 use ecb_rates::models::ExchangeRateResult;
 use ecb_rates::parsing::parse;
-use ecb_rates::table::{TableRef, TableTrait};
+use ecb_rates::table::{TableRef, TableTrait as _};
 
 async fn get_and_parse(url: impl IntoUrl) -> anyhow::Result<Vec<ExchangeRateResult>> {
     let client = Client::new();
@@ -40,10 +40,23 @@ async fn main() -> ExitCode {
     }
 
     let use_cache = !cli.no_cache;
-    let cache = if use_cache { Cache::load() } else { None };
-    let cache_ok = cache.as_ref().map_or_else(|| false, |c| c.validate());
+    let mut cache = if use_cache { Cache::load() } else { None };
+    let cache_ok = cache.as_ref().map_or_else(
+        || false,
+        |c| {
+            c.get_cache_line(cli.resolution)
+                .map_or_else(|| false, |cl| cl.validate())
+        },
+    );
     let mut parsed = if cache_ok {
-        cache.as_ref().unwrap().exchange_rate_results.clone()
+        // These are safe unwraps
+        cache
+            .as_ref()
+            .unwrap()
+            .get_cache_line(cli.resolution)
+            .unwrap()
+            .exchange_rate_results
+            .clone()
     } else {
         let parsed = match get_and_parse(cli.resolution.to_ecb_url()).await {
             Ok(k) => k,
@@ -53,8 +66,12 @@ async fn main() -> ExitCode {
             }
         };
         if !cache_ok {
-            if let Err(e) = Cache::new(parsed.clone()).save() {
-                eprintln!("Failed to save to cache with: {:?}", e);
+            if let Some(cache_safe) = cache.as_mut() {
+                let cache_line = CacheLine::new(parsed.clone());
+                cache_safe.set_cache_line(cli.resolution, cache_line);
+                if let Err(e) = cache_safe.save() {
+                    eprintln!("Failed to save to cache with: {:?}", e);
+                }
             }
         }
         parsed

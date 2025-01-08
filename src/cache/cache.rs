@@ -3,22 +3,20 @@ use std::io::{BufReader, BufWriter};
 use std::path::Path;
 
 use anyhow::Context;
-use chrono::serde::ts_seconds;
-use chrono::{DateTime, Local, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::models::ExchangeRateResult;
+use crate::cli::Resolution;
 use crate::os::Os;
+
+use super::CacheLine;
 
 const FILE_NAME: &'static str = "cache.json";
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Cache {
-    #[serde(with = "ts_seconds")]
-    date: DateTime<Utc>,
-
-    #[serde(rename = "camelCase")]
-    pub exchange_rate_results: Vec<ExchangeRateResult>,
+    day: Option<CacheLine>,
+    hist_90: Option<CacheLine>,
+    hist_day: Option<CacheLine>,
 }
 
 impl Cache {
@@ -37,7 +35,11 @@ impl Cache {
         }
         config_path.push(FILE_NAME);
         if !config_path.try_exists().unwrap_or_default() {
-            return None;
+            return Some(Self {
+                day: None,
+                hist_90: None,
+                hist_day: None,
+            });
         }
 
         match Self::read_config(&config_path) {
@@ -49,11 +51,20 @@ impl Cache {
         }
     }
 
-    pub fn new(exchange_rate_results: Vec<ExchangeRateResult>) -> Self {
-        let date = Local::now().to_utc();
-        Self {
-            exchange_rate_results,
-            date,
+    pub fn get_cache_line(&self, resolution: Resolution) -> Option<&CacheLine> {
+        match resolution {
+            Resolution::TODAY => self.day.as_ref(),
+            Resolution::HistDays90 => self.hist_90.as_ref(),
+            Resolution::HistDay => self.hist_day.as_ref(),
+        }
+    }
+
+    pub fn set_cache_line(&mut self, resolution: Resolution, cache_line: CacheLine) {
+        let cache_line_opt = Some(cache_line);
+        match resolution {
+            Resolution::TODAY => self.day = cache_line_opt,
+            Resolution::HistDays90 => self.hist_90 = cache_line_opt,
+            Resolution::HistDay => self.hist_day = cache_line_opt,
         }
     }
 
@@ -75,12 +86,6 @@ impl Cache {
         serde_json::to_writer(writer, self)?;
 
         Ok(())
-    }
-
-    pub fn validate(&self) -> bool {
-        let today = Local::now().naive_local().date();
-        let saved = self.date.naive_local().date();
-        saved == today
     }
 
     fn read_config(path: &Path) -> anyhow::Result<Self> {
