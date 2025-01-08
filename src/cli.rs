@@ -25,6 +25,10 @@ pub struct Cli {
     #[arg(long = "no-cache")]
     pub no_cache: bool,
 
+    /// Force color in output. Normally it will disable color in pipes
+    #[arg(long = "force-color")]
+    pub force_color: bool,
+
     /// Amount of data
     #[arg(value_enum, default_value_t = Resolution::TODAY, long="resolution", short='r')]
     pub resolution: Resolution,

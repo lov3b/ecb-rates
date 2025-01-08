@@ -35,6 +35,10 @@ fn filter_currencies(exchange_rate_results: &mut [ExchangeRateResult], currencie
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> ExitCode {
     let cli = Cli::parse();
+    if cli.force_color {
+        colored::control::set_override(true);
+    }
+
     let use_cache = !cli.no_cache;
     let cache = if use_cache { Cache::load() } else { None };
     let cache_ok = cache.as_ref().map_or_else(|| false, |c| c.validate());
