@@ -115,7 +115,7 @@ async fn main() -> ExitCode {
             .map(|x| {
                 let mut t: TableRef = x.into();
                 t.sort();
-                format!("{}", t)
+                t.to_string()
             })
             .collect::<Vec<_>>()
             .join("\n"),
