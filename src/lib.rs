@@ -1,9 +1,12 @@
+pub mod cache;
 pub mod cli;
+mod holiday;
 pub mod models;
 pub mod os;
 pub mod parsing;
 pub mod table;
-pub mod cache;
+
+pub use holiday::Hollidays;
 
 const APP_NAME: &'static str = "ECB-rates";
 
