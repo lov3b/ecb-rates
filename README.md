@@ -6,10 +6,10 @@ A cli utility to fetch the currency rates against the Euro from the ECB.
 
 First, make sure that you have the rust toolchain installed. If not, then go to [rustup](https://rustup.rs) to install it.
 
-Now, Git clone the project, then cd into the projects root-dir. Thereafter run:
+Now, run the following cargo command:
 
 ```sh
-cargo install --path .
+cargo install --git https://github.com/lov3b/ecb-rates.git
 ```
 
 Congratulations! Now the cli binary `ecb-rates` will be in your cargo bin folder.
