@@ -3,8 +3,8 @@ use std::io::{BufReader, BufWriter};
 use std::path::{Path, PathBuf};
 
 use super::CacheLine;
-use crate::cli::View;
 use crate::os::Os;
+use crate::View;
 
 #[derive(Debug)]
 pub struct Cache {
@@ -13,7 +13,7 @@ pub struct Cache {
 }
 
 impl Cache {
-    pub fn load(view: View) -> Option<Self> {
+    pub fn load(view: &View) -> Option<Self> {
         let config_opt = Os::get_current()?.get_config_path();
         let mut config_path = match config_opt {
             Ok(k) => k,

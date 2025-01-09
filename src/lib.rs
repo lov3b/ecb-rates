@@ -7,9 +7,11 @@ pub mod os;
 pub mod parsing;
 pub mod table;
 pub mod utils_calc;
+mod view;
 
 pub use header_description::HeaderDescription;
 pub use holiday::Hollidays;
+pub use view::View;
 
 const APP_NAME: &'static str = "ECB-rates";
 const DEFAULT_WIDTH: usize = 20;

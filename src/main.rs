@@ -25,11 +25,14 @@ async fn main() -> ExitCode {
 
     let mut header_description = HeaderDescription::new();
     let use_cache = !cli.no_cache;
-    let mut cache = if use_cache {
-        Cache::load(cli.view)
-    } else {
-        None
+    let view = match cli.show_days.to_view() {
+        Some(v) => v,
+        None => {
+            eprintln!("It doesn't make any sence to fetch 0 days right?");
+            return ExitCode::SUCCESS;
+        }
     };
+    let mut cache = if use_cache { Cache::load(&view) } else { None };
     let cache_ok = cache.as_ref().map_or_else(
         || false,
         |c| c.get_cache_line().map_or_else(|| false, |cl| cl.is_valid()),
@@ -44,7 +47,7 @@ async fn main() -> ExitCode {
             .exchange_rate_results
             .clone()
     } else {
-        let parsed = match get_and_parse(cli.view.to_ecb_url()).await {
+        let parsed = match get_and_parse(view.to_ecb_url()).await {
             Ok(k) => k,
             Err(e) => {
                 eprintln!("Failed to get/parse data from ECB: {}", e);
@@ -101,6 +104,18 @@ async fn main() -> ExitCode {
 
         filter_currencies(&mut parsed, &currencies);
     }
+
+    parsed.reverse();
+    let parsed = match cli.show_days.to_option() {
+        Some(n) => {
+            if parsed.len() <= n {
+                parsed.as_slice()
+            } else {
+                &parsed[0..n]
+            }
+        }
+        None => parsed.as_slice(),
+    };
 
     let output = match cli.command {
         FormatOption::Json => {
