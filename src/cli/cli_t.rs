@@ -46,7 +46,7 @@ pub struct Cli {
     pub max_decimals: u8,
 
     /// Amount of data
-    #[arg(default_value_t = ShowDays::Days(1), long="show_days", short='s')]
+    #[arg(default_value_t = ShowDays::Days(1), long="show-days", short='s')]
     pub show_days: ShowDays,
 }
 
