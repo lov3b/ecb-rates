@@ -30,7 +30,7 @@ First, make sure that you have the rust toolchain installed. If not, then go to 
 Now, run the following cargo command:
 
 ```sh
-cargo install --git https://github.com/lov3b/ecb-rates.git
+cargo install ecb-rates
 ```
 
 Congratulations! Now the cli binary `ecb-rates` will be in your cargo bin folder.
