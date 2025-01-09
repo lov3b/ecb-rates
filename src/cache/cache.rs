@@ -1,26 +1,19 @@
 use std::fs;
 use std::io::{BufReader, BufWriter};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
-use anyhow::Context;
-use serde::{Deserialize, Serialize};
-
+use super::CacheLine;
 use crate::cli::View;
 use crate::os::Os;
 
-use super::CacheLine;
-
-const FILE_NAME: &'static str = "cache.json";
-
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Debug)]
 pub struct Cache {
-    day: Option<CacheLine>,
-    hist_90: Option<CacheLine>,
-    hist_day: Option<CacheLine>,
+    cache_line: Option<CacheLine>,
+    config_path: PathBuf,
 }
 
 impl Cache {
-    pub fn load() -> Option<Self> {
+    pub fn load(view: View) -> Option<Self> {
         let config_opt = Os::get_current()?.get_config_path();
         let mut config_path = match config_opt {
             Ok(k) => k,
@@ -33,17 +26,19 @@ impl Cache {
             eprintln!("Failed to create config dir: {:?}", e);
             return None;
         }
-        config_path.push(FILE_NAME);
+        config_path.push(format!("{}.json", view.get_name()));
         if !config_path.try_exists().unwrap_or_default() {
             return Some(Self {
-                day: None,
-                hist_90: None,
-                hist_day: None,
+                cache_line: None,
+                config_path,
             });
         }
 
         match Self::read_config(&config_path) {
-            Ok(k) => Some(k),
+            Ok(cache_line) => Some(Self {
+                cache_line: Some(cache_line),
+                config_path,
+            }),
             Err(e) => {
                 eprintln!("Config path is invalid, or cannot be created: {:?}", e);
                 None
@@ -51,44 +46,28 @@ impl Cache {
         }
     }
 
-    pub fn get_cache_line(&self, resolution: View) -> Option<&CacheLine> {
-        match resolution {
-            View::TODAY => self.day.as_ref(),
-            View::HistDays90 => self.hist_90.as_ref(),
-            View::HistDaysAll => self.hist_day.as_ref(),
-        }
+    pub fn get_cache_line(&self) -> Option<&CacheLine> {
+        self.cache_line.as_ref()
     }
 
-    pub fn set_cache_line(&mut self, resolution: View, cache_line: CacheLine) {
-        let cache_line_opt = Some(cache_line);
-        match resolution {
-            View::TODAY => self.day = cache_line_opt,
-            View::HistDays90 => self.hist_90 = cache_line_opt,
-            View::HistDaysAll => self.hist_day = cache_line_opt,
-        }
+    pub fn set_cache_line(&mut self, cache_line: CacheLine) {
+        self.cache_line = Some(cache_line);
     }
 
     pub fn save(&self) -> anyhow::Result<()> {
-        let mut config_path = Os::get_current()
-            .context("Failed to get config home")?
-            .get_config_path()?;
-        fs::create_dir_all(&config_path)?;
-
-        config_path.push(FILE_NAME);
-
         let file = fs::File::options()
             .write(true)
             .create(true)
             .truncate(true)
-            .open(&config_path)?;
+            .open(&self.config_path)?;
 
         let writer = BufWriter::new(file);
-        serde_json::to_writer(writer, self)?;
+        serde_json::to_writer(writer, &self.cache_line)?;
 
         Ok(())
     }
 
-    fn read_config(path: &Path) -> anyhow::Result<Self> {
+    fn read_config(path: &Path) -> anyhow::Result<CacheLine> {
         let file = fs::File::open(path)?;
         let reader = BufReader::new(file);
         Ok(serde_json::from_reader(reader)?)

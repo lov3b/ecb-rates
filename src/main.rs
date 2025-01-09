@@ -25,25 +25,26 @@ async fn main() -> ExitCode {
 
     let mut header_description = HeaderDescription::new();
     let use_cache = !cli.no_cache;
-    let mut cache = if use_cache { Cache::load() } else { None };
+    let mut cache = if use_cache {
+        Cache::load(cli.view)
+    } else {
+        None
+    };
     let cache_ok = cache.as_ref().map_or_else(
         || false,
-        |c| {
-            c.get_cache_line(cli.resolution)
-                .map_or_else(|| false, |cl| cl.is_valid())
-        },
+        |c| c.get_cache_line().map_or_else(|| false, |cl| cl.is_valid()),
     );
     let mut parsed = if cache_ok {
         // These are safe unwraps
         cache
             .as_ref()
             .unwrap()
-            .get_cache_line(cli.resolution)
+            .get_cache_line()
             .unwrap()
             .exchange_rate_results
             .clone()
     } else {
-        let parsed = match get_and_parse(cli.resolution.to_ecb_url()).await {
+        let parsed = match get_and_parse(cli.view.to_ecb_url()).await {
             Ok(k) => k,
             Err(e) => {
                 eprintln!("Failed to get/parse data from ECB: {}", e);
@@ -56,7 +57,7 @@ async fn main() -> ExitCode {
                 || true,
                 |cache_local| {
                     cache_local
-                        .get_cache_line(cli.resolution)
+                        .get_cache_line()
                         .map_or_else(|| true, |cache_line| cache_line == &parsed)
                 },
             );
@@ -64,7 +65,7 @@ async fn main() -> ExitCode {
             if not_equal_cache {
                 if let Some(cache_safe) = cache.as_mut() {
                     let cache_line = CacheLine::new(parsed.clone());
-                    cache_safe.set_cache_line(cli.resolution, cache_line);
+                    cache_safe.set_cache_line(cache_line);
                     if let Err(e) = cache_safe.save() {
                         eprintln!("Failed to save to cache with: {:?}", e);
                     }
