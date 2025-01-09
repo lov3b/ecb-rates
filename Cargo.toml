@@ -1,7 +1,7 @@
 [package]
 name = "ecb-rates"
 description = "Query exchange rates from the European Central Bank (ECB)"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 authors = ["Love Billenius <lovebillenius@disroot.org>"]
 license-file = "LICENSE"

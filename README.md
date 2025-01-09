@@ -7,7 +7,7 @@
     alt="European Central Bank Logo"
     align="left"
   />
-  A CLI utility to fetch the currency rates against the Euro from the ECB.
+  A CLI utility to fetch exchange reates from the European Central Bank.
   <br />
   <br />
   <br />
@@ -63,23 +63,23 @@ It wouldn't be a rust project without being *BLAZINGLY FAST*! When the cache is 
 
 #### Show the original data from ECB
 
-![eur-to-all](screenshots/eur-to-all.png)
+![eur-to-all](images/eur-to-all.png)
 
 #### ...with only select currencies
 
-![eur-to-all](screenshots/eur-to-all-select.png)
+![eur-to-all](images/eur-to-all-select.png)
 
 #### Put the exchange rate in the perspective of any currency
 
-![usd-to-all](screenshots/usd-to-all.png)
+![usd-to-all](images/usd-to-all.png)
 
 #### Flip it
 
-![all-to-usd](screenshots/all-to-usd.png)
+![all-to-usd](images/all-to-usd.png)
 
 #### Show multiple days
 
-![eur-to-all-multiple-days](screenshots/eur-to-all-multiple-days.png)
+![eur-to-all-multiple-days](images/eur-to-all-multiple-days.png)
 
 ## Acknowledgment
 

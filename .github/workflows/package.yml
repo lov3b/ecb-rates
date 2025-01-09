@@ -1,0 +1,51 @@
+name: Build Packages
+
+on:
+  push:
+    tags:
+      - "v*"  # Triggers on tags starting with 'v'
+
+permissions:
+  contents: write  # Needed for creating releases
+
+jobs:
+  build_and_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Install packaging tools
+        run: |
+          cargo install cargo-deb
+          cargo install cargo-generate-rpm
+
+      - name: Build Debian package
+        run: cargo deb
+
+      - id: get_tag_info
+        name: Get Tag Info
+        run: |
+          tag="${GITHUB_REF##*/}"
+          echo "Found tag: $tag"
+          message=$(git tag -l --format='%(contents)' "$tag")
+          # Set outputs using the recommended environment files approach
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+          echo "message=$message" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.get_tag_info.outputs.tag }}
+          name: Release ${{ steps.get_tag_info.outputs.tag }}
+          body: ${{ steps.get_tag_info.outputs.message }}
+          artifacts: |
+            target/debian/*.deb
+          token: ${{ secrets.GITHUB_TOKEN }}
+          allowUpdates: true
