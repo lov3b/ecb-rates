@@ -2,6 +2,7 @@ use std::fmt::Display;
 
 use crate::cli::SortBy;
 use crate::models::ExchangeRateResult;
+use crate::DEFAULT_WIDTH;
 
 use super::table_display::helper_table_print;
 use super::table_getter::TableGet;
@@ -15,6 +16,7 @@ pub struct TableRef<'a> {
     rows: Vec<(&'a str, f64)>,
     pub color: bool,
     pub width: usize,
+    pub left_offset: usize,
 }
 
 impl<'a> TableTrait<'a> for TableRef<'a> {
@@ -34,7 +36,8 @@ impl<'a> TableTrait<'a> for TableRef<'a> {
             column_right,
             rows: Vec::new(),
             color: false,
-            width: 21,
+            width: DEFAULT_WIDTH,
+            left_offset: 1,
         }
     }
 
@@ -75,6 +78,10 @@ impl<'a> TableGet for TableRef<'a> {
     fn get_width(&self) -> usize {
         self.width
     }
+    
+    fn get_left_offset(&self) -> usize {
+        self.left_offset
+    }
 }
 
 impl<'a> From<&'a ExchangeRateResult> for TableRef<'a> {
@@ -109,6 +116,7 @@ impl<'a> From<&'a Table> for TableRef<'a> {
             rows,
             color: table.color,
             width: table.width,
+            left_offset: table.left_offset,
         }
     }
 }

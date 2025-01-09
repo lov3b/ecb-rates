@@ -1,12 +1,14 @@
 use clap::Parser as _;
 use ecb_rates::cache::{Cache, CacheLine};
+use ecb_rates::HeaderDescription;
 use reqwest::{Client, IntoUrl};
-use std::{borrow::BorrowMut, collections::HashMap, process::ExitCode};
+use std::process::ExitCode;
 
 use ecb_rates::cli::{Cli, FormatOption};
 use ecb_rates::models::ExchangeRateResult;
 use ecb_rates::parsing::parse;
 use ecb_rates::table::{TableRef, TableTrait as _};
+use ecb_rates::utils_calc::{change_perspective, filter_currencies, invert_rates, round};
 
 async fn get_and_parse(url: impl IntoUrl) -> anyhow::Result<Vec<ExchangeRateResult>> {
     let client = Client::new();
@@ -14,31 +16,14 @@ async fn get_and_parse(url: impl IntoUrl) -> anyhow::Result<Vec<ExchangeRateResu
     parse(&xml_content)
 }
 
-fn filter_currencies(exchange_rate_results: &mut [ExchangeRateResult], currencies: &[String]) {
-    for exchange_rate in exchange_rate_results {
-        let rates_ptr: *mut HashMap<String, f64> = &mut exchange_rate.rates;
-        exchange_rate
-            .rates
-            .keys()
-            .filter(|x| !currencies.contains(x))
-            .for_each(|key_to_remove| {
-                /* This is safe, since we:
-                 * 1. Already have a mutable reference.
-                 * 2. Don't run the code in paralell
-                 */
-                let rates = unsafe { (*rates_ptr).borrow_mut() };
-                rates.remove_entry(key_to_remove);
-            });
-    }
-}
-
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> ExitCode {
-    let cli = Cli::parse();
+    let mut cli = Cli::parse();
     if cli.force_color {
         colored::control::set_override(true);
     }
 
+    let mut header_description = HeaderDescription::new();
     let use_cache = !cli.no_cache;
     let mut cache = if use_cache { Cache::load() } else { None };
     let cache_ok = cache.as_ref().map_or_else(
@@ -89,6 +74,23 @@ async fn main() -> ExitCode {
         parsed
     };
 
+    cli.perspective = cli.perspective.map(|s| s.to_uppercase());
+    if let Some(currency) = cli.perspective.as_ref() {
+        header_description.replace_eur(&currency);
+        let error_occured = change_perspective(&mut parsed, &currency).is_none();
+        if error_occured {
+            eprintln!("The currency wasn't in the data from the ECB!");
+            return ExitCode::FAILURE;
+        }
+    }
+
+    if cli.should_invert {
+        invert_rates(&mut parsed);
+        header_description.invert();
+    }
+
+    round(&mut parsed, cli.max_decimals);
+
     if !cli.currencies.is_empty() {
         let currencies = cli
             .currencies
@@ -122,18 +124,23 @@ async fn main() -> ExitCode {
             };
             to_string_json(&json_values).expect("Failed to parse content as JSON")
         }
-        FormatOption::Plain => parsed
-            .iter()
-            .map(|x| {
-                let mut t: TableRef = x.into();
-                if cli.no_time {
-                    t.disable_header();
-                }
-                t.sort(&cli.sort_by);
-                t.to_string()
-            })
-            .collect::<Vec<_>>()
-            .join("\n"),
+        FormatOption::Plain => {
+            let rates = parsed
+                .iter()
+                .map(|x| {
+                    let mut t: TableRef = x.into();
+                    if cli.no_time {
+                        t.disable_header();
+                    }
+                    t.sort(&cli.sort_by);
+                    t.to_string()
+                })
+                .collect::<Vec<_>>()
+                .join("\n");
+            let mut s = header_description.to_string();
+            s.push_str(&rates);
+            s
+        }
     };
 
     println!("{}", &output);

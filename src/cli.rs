@@ -33,6 +33,18 @@ pub struct Cli {
     #[arg(value_enum, long = "sort-by", short = 's', default_value_t = SortBy::Currency)]
     pub sort_by: SortBy,
 
+    /// Recalculate to the perspective from an included currency
+    #[arg(long = "perspective", short = 'p')]
+    pub perspective: Option<String>,
+
+    /// Invert the rate
+    #[arg(long = "invert", short = 'i')]
+    pub should_invert: bool,
+
+    //// Max decimals to keep in price.
+    #[arg(long = "max-decimals", short = 'd', default_value_t = 5)]
+    pub max_decimals: u8,
+
     /// Amount of data
     #[arg(value_enum, default_value_t = Resolution::TODAY, long="resolution", short='r')]
     pub resolution: Resolution,
