@@ -7,22 +7,14 @@ authors = ["Love Billenius <lovebillenius@disroot.org>"]
 license-file = "LICENSE"
 keywords = [
     "ECB",
-    "European Central Bank",
     "Bank",
-    "Central Bank",
+    "Central",
     "exchange",
     "rates",
-    "eur",
-    "sek",
-    "usd",
-    "nok",
-    "gbp",
-    "pln",
-    "dkk",
-    "czk",
-    "isk",
-    "chf",
 ]
+repository = "https://github.com/lov3b/ecb-rates"
+rust-version = "1.83"
+categories = ["finance", "command-line-utilities"]
 
 [[bin]]
 name = "ecb-rates"
