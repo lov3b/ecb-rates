@@ -1,5 +1,6 @@
 use clap::Parser as _;
 use ecb_rates::cache::{Cache, CacheLine};
+use ecb_rates::HeaderDescription;
 use reqwest::{Client, IntoUrl};
 use std::process::ExitCode;
 
@@ -17,11 +18,12 @@ async fn get_and_parse(url: impl IntoUrl) -> anyhow::Result<Vec<ExchangeRateResu
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> ExitCode {
-    let cli = Cli::parse();
+    let mut cli = Cli::parse();
     if cli.force_color {
         colored::control::set_override(true);
     }
 
+    let mut header_description = HeaderDescription::new();
     let use_cache = !cli.no_cache;
     let mut cache = if use_cache { Cache::load() } else { None };
     let cache_ok = cache.as_ref().map_or_else(
@@ -72,7 +74,9 @@ async fn main() -> ExitCode {
         parsed
     };
 
-    if let Some(currency) = cli.perspective.map(|s| s.to_uppercase()) {
+    cli.perspective = cli.perspective.map(|s| s.to_uppercase());
+    if let Some(currency) = cli.perspective.as_ref() {
+        header_description.replace_eur(&currency);
         let error_occured = change_perspective(&mut parsed, &currency).is_none();
         if error_occured {
             eprintln!("The currency wasn't in the data from the ECB!");
@@ -82,6 +86,7 @@ async fn main() -> ExitCode {
 
     if cli.should_invert {
         invert_rates(&mut parsed);
+        header_description.invert();
     }
 
     round(&mut parsed, cli.max_decimals);
@@ -119,18 +124,23 @@ async fn main() -> ExitCode {
             };
             to_string_json(&json_values).expect("Failed to parse content as JSON")
         }
-        FormatOption::Plain => parsed
-            .iter()
-            .map(|x| {
-                let mut t: TableRef = x.into();
-                if cli.no_time {
-                    t.disable_header();
-                }
-                t.sort(&cli.sort_by);
-                t.to_string()
-            })
-            .collect::<Vec<_>>()
-            .join("\n"),
+        FormatOption::Plain => {
+            let rates = parsed
+                .iter()
+                .map(|x| {
+                    let mut t: TableRef = x.into();
+                    if cli.no_time {
+                        t.disable_header();
+                    }
+                    t.sort(&cli.sort_by);
+                    t.to_string()
+                })
+                .collect::<Vec<_>>()
+                .join("\n");
+            let mut s = header_description.to_string();
+            s.push_str(&rates);
+            s
+        }
     };
 
     println!("{}", &output);
