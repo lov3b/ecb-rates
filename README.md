@@ -19,6 +19,12 @@
 
 ## Install
 
+### Binary
+
+If you're on Debian Linux, then just go over to the releases, and install the latest *.deb* package with `dpkg`
+
+### Source
+
 First, make sure that you have the rust toolchain installed. If not, then go to [rustup](https://rustup.rs) to install it.
 
 Now, run the following cargo command:
