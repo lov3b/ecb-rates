@@ -46,8 +46,8 @@ pub struct Cli {
     pub max_decimals: u8,
 
     /// Amount of data
-    #[arg(value_enum, default_value_t = View::TODAY, long="resolution", short='r')]
-    pub resolution: View,
+    #[arg(value_enum, default_value_t = View::TODAY, long="view", short='v')]
+    pub view: View,
 }
 
 #[derive(Debug, Clone, Copy, ValueEnum)]
@@ -72,6 +72,14 @@ impl View {
             View::TODAY => ecb_url::TODAY,
             View::HistDays90 => ecb_url::hist::DAYS_90,
             View::HistDaysAll => ecb_url::hist::DAYS_ALL,
+        }
+    }
+
+    pub fn get_name(&self) -> &'static str {
+        match self {
+            View::TODAY => "today",
+            View::HistDays90 => "last-90-days",
+            View::HistDaysAll => "all-days",
         }
     }
 }
