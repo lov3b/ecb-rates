@@ -37,6 +37,10 @@ pub struct Cli {
     #[arg(long = "perspective", short = 'p')]
     pub perspective: Option<String>,
 
+    /// Invert the rate
+    #[arg(long = "invert", short = 'i')]
+    pub should_invert: bool,
+
     /// Amount of data
     #[arg(value_enum, default_value_t = Resolution::TODAY, long="resolution", short='r')]
     pub resolution: Resolution,
