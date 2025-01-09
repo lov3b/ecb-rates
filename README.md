@@ -32,20 +32,22 @@ Congratulations! Now the cli binary `ecb-rates` will be in your cargo bin folder
 
 It features an extensive cache, which will [calculate hollidays](src/holiday.rs) in order to know whether to invalidate it or not.
 
-### Example
+### Examples
 
-```sh
-ecb-rates -c sek -c nok -c usd
-```
+#### Show the original data from ECB
+![eur-to-all](screenshots/eur-to-all.png)
 
-```plain
-     2025-01-07
-Currency         Rate
----------------------
-USD            1.0393
-SEK            11.475
-NOK           11.7385
-```
+#### ...with only select currencies
+
+![eur-to-all](screenshots/eur-to-all-select.png)
+
+#### Put the exchange rate in the perspective of any currency
+
+![usd-to-all](screenshots/usd-to-all.png)
+
+#### Flip it
+
+![all-to-usd](screenshots/all-to-usd.png)
 
 ## Acknowledgment
 
