@@ -44,3 +44,13 @@ pub fn invert_rates(exchange_rate_results: &mut [ExchangeRateResult]) {
         }
     }
 }
+
+pub fn round(exchange_rate_results: &mut [ExchangeRateResult], max_decimals: u8) {
+    let power = 10.0_f64.powf(max_decimals as f64);
+    for rate_res in exchange_rate_results {
+        for (_, iter_rate) in rate_res.rates.iter_mut() {
+            let more = iter_rate.deref() * power;
+            *iter_rate = more.round() / power;
+        }
+    }
+}

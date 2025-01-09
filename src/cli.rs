@@ -41,6 +41,10 @@ pub struct Cli {
     #[arg(long = "invert", short = 'i')]
     pub should_invert: bool,
 
+    //// Max decimals to keep in price.
+    #[arg(long = "max-decimals", short = 'd', default_value_t = 5)]
+    pub max_decimals: u8,
+
     /// Amount of data
     #[arg(value_enum, default_value_t = Resolution::TODAY, long="resolution", short='r')]
     pub resolution: Resolution,

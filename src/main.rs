@@ -7,7 +7,7 @@ use ecb_rates::cli::{Cli, FormatOption};
 use ecb_rates::models::ExchangeRateResult;
 use ecb_rates::parsing::parse;
 use ecb_rates::table::{TableRef, TableTrait as _};
-use ecb_rates::utils_calc::{change_perspective, filter_currencies, invert_rates};
+use ecb_rates::utils_calc::{change_perspective, filter_currencies, invert_rates, round};
 
 async fn get_and_parse(url: impl IntoUrl) -> anyhow::Result<Vec<ExchangeRateResult>> {
     let client = Client::new();
@@ -83,6 +83,8 @@ async fn main() -> ExitCode {
     if cli.should_invert {
         invert_rates(&mut parsed);
     }
+
+    round(&mut parsed, cli.max_decimals);
 
     if !cli.currencies.is_empty() {
         let currencies = cli
