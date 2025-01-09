@@ -5,7 +5,7 @@ use std::path::Path;
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
 
-use crate::cli::Resolution;
+use crate::cli::View;
 use crate::os::Os;
 
 use super::CacheLine;
@@ -51,20 +51,20 @@ impl Cache {
         }
     }
 
-    pub fn get_cache_line(&self, resolution: Resolution) -> Option<&CacheLine> {
+    pub fn get_cache_line(&self, resolution: View) -> Option<&CacheLine> {
         match resolution {
-            Resolution::TODAY => self.day.as_ref(),
-            Resolution::HistDays90 => self.hist_90.as_ref(),
-            Resolution::HistDaysAll => self.hist_day.as_ref(),
+            View::TODAY => self.day.as_ref(),
+            View::HistDays90 => self.hist_90.as_ref(),
+            View::HistDaysAll => self.hist_day.as_ref(),
         }
     }
 
-    pub fn set_cache_line(&mut self, resolution: Resolution, cache_line: CacheLine) {
+    pub fn set_cache_line(&mut self, resolution: View, cache_line: CacheLine) {
         let cache_line_opt = Some(cache_line);
         match resolution {
-            Resolution::TODAY => self.day = cache_line_opt,
-            Resolution::HistDays90 => self.hist_90 = cache_line_opt,
-            Resolution::HistDaysAll => self.hist_day = cache_line_opt,
+            View::TODAY => self.day = cache_line_opt,
+            View::HistDays90 => self.hist_90 = cache_line_opt,
+            View::HistDaysAll => self.hist_day = cache_line_opt,
         }
     }
 

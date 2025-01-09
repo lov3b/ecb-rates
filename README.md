@@ -16,15 +16,21 @@ Congratulations! Now the cli binary `ecb-rates` will be in your cargo bin folder
 
 ## Features
 
-- Fetch and display select currencies:
-  - as an ASCII table
-  - in JSON prettified
-  - in JSON minified
-- Fetch in different "resolutions":
-  - Last available day.
-  - Since the dawn of the *EUR*
-    - in day resolution
-    - in 90 day resolution
+#### Fetch in different views
+
+- Last available day.
+- Last 90 days
+- Since the dawn of the *EUR*
+
+#### Display select currencies
+
+- as an ASCII table
+- in JSON prettified
+- in JSON minified
+
+#### Cache
+
+It features an extensive cache, which will [calculate hollidays](src/holiday.rs) in order to know whether to invalidate it or not.
 
 ### Example
 

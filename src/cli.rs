@@ -46,8 +46,8 @@ pub struct Cli {
     pub max_decimals: u8,
 
     /// Amount of data
-    #[arg(value_enum, default_value_t = Resolution::TODAY, long="resolution", short='r')]
-    pub resolution: Resolution,
+    #[arg(value_enum, default_value_t = View::TODAY, long="resolution", short='r')]
+    pub resolution: View,
 }
 
 #[derive(Debug, Clone, Copy, ValueEnum)]
@@ -57,20 +57,21 @@ pub enum SortBy {
 }
 
 #[derive(Debug, Clone, Copy, ValueEnum)]
-pub enum Resolution {
+pub enum View {
+    #[clap(name = "last-day")]
     TODAY,
-    #[clap(name = "hist-90-days")]
+    #[clap(name = "last-90-days")]
     HistDays90,
-    #[clap(name = "hist-all-days")]
+    #[clap(name = "all-days")]
     HistDaysAll,
 }
 
-impl Resolution {
+impl View {
     pub fn to_ecb_url(&self) -> &'static str {
         match self {
-            Resolution::TODAY => ecb_url::TODAY,
-            Resolution::HistDays90 => ecb_url::hist::DAYS_90,
-            Resolution::HistDaysAll => ecb_url::hist::DAYS_ALL,
+            View::TODAY => ecb_url::TODAY,
+            View::HistDays90 => ecb_url::hist::DAYS_90,
+            View::HistDaysAll => ecb_url::hist::DAYS_ALL,
         }
     }
 }
