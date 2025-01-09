@@ -1,16 +1,21 @@
 # ECB Rates
 
-<div style="display: flex; justify-content: center; align-items: center; gap: 20px; margin: 20px 0;">
+<p style="text-align: center">
   <img
     src="images/Logo_European_Central_Bank.svg"
     width="200"
     alt="European Central Bank Logo"
-    style="flex-shrink: 0;"
+    align="left"
   />
-  <p style="max-width: 400px; line-height: 1.5; margin: 0;">
-    A CLI utility to fetch the currency rates against the Euro from the ECB.
-  </p>
-</div>
+  A CLI utility to fetch the currency rates against the Euro from the ECB.
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+</p>
 
 ## Install
 
