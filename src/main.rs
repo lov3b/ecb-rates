@@ -1,7 +1,6 @@
 use clap::Parser as _;
-use core::error;
 use ecb_rates::cache::{Cache, CacheLine};
-use reqwest::{Client, IntoUrl, StatusCode};
+use reqwest::{Client, IntoUrl};
 use std::process::ExitCode;
 
 use ecb_rates::cli::{Cli, FormatOption};
@@ -73,7 +72,7 @@ async fn main() -> ExitCode {
         parsed
     };
 
-    if let Some(currency) = cli.perspective {
+    if let Some(currency) = cli.perspective.map(|s| s.to_uppercase()) {
         let error_occured = change_perspective(&mut parsed, &currency).is_none();
         if error_occured {
             eprintln!("The currency wasn't in the data from the ECB!");
