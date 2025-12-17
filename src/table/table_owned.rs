@@ -1,5 +1,7 @@
 use std::fmt::Display;
 
+use smol_str::SmolStr;
+
 use crate::cli::SortBy;
 use crate::models::ExchangeRateResult;
 use crate::DEFAULT_WIDTH;
@@ -8,20 +10,20 @@ use super::table_display::helper_table_print;
 use super::{TableGet, TableTrait};
 
 pub struct Table {
-    pub(super) header: Option<String>,
-    pub(super) column_left: String,
-    pub(super) column_right: String,
-    pub(super) rows: Vec<(String, f64)>,
+    pub(super) header: Option<SmolStr>,
+    pub(super) column_left: SmolStr,
+    pub(super) column_right: SmolStr,
+    pub(super) rows: Vec<(SmolStr, f64)>,
     pub color: bool,
     pub width: usize,
     pub left_offset: usize,
 }
 
 impl<'a> TableTrait<'a> for Table {
-    type Header = String;
-    type ColumnLeft = String;
-    type ColumnRight = String;
-    type RowLeft = String;
+    type Header = SmolStr;
+    type ColumnLeft = SmolStr;
+    type ColumnRight = SmolStr;
+    type RowLeft = SmolStr;
 
     fn new(
         header: Option<Self::Header>,
@@ -59,8 +61,8 @@ impl<'a> TableTrait<'a> for Table {
 }
 
 impl TableGet for Table {
-    type RowLeftRef = String;
-    type RowRightRef = String;
+    type RowLeftRef = SmolStr;
+    type RowRightRef = SmolStr;
 
     fn get_header(&self) -> Option<&str> {
         self.header.as_deref()
@@ -77,7 +79,7 @@ impl TableGet for Table {
     fn get_width(&self) -> usize {
         self.width
     }
-    
+
     fn get_left_offset(&self) -> usize {
         self.left_offset
     }
@@ -85,7 +87,7 @@ impl TableGet for Table {
 
 impl From<ExchangeRateResult> for Table {
     fn from(value: ExchangeRateResult) -> Self {
-        let mut table = Table::new(Some(value.time), "Currency".to_string(), "Rate".to_string());
+        let mut table = Table::new(Some(value.time), "Currency".into(), "Rate".into());
         for (key, val) in value.rates.into_iter() {
             table.add_row(key, val);
         }
