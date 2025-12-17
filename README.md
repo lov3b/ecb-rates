@@ -7,7 +7,7 @@
     alt="European Central Bank Logo"
     align="left"
   />
-  A CLI utility to fetch exchange reates from the European Central Bank.
+  A CLI utility to fetch exchange rates from the European Central Bank.
   <br />
   <br />
   <br />
@@ -21,7 +21,7 @@
 
 ### Binary
 
-If you're on Debian Linux, then just go over to the releases, and install the latest *.deb* package with `dpkg`
+If you're on Debian Linux, then just go over to the releases, and install the latest _.deb_ package with `dpkg`
 
 ### Source
 
@@ -43,7 +43,7 @@ It will fetch any of the following api nodes, and reduce them for you.
 
 - Last available day.
 - Last 90 days
-- Since the dawn of the *EUR*
+- Since the dawn of the _EUR_
 
 #### Display select currencies
 
@@ -59,11 +59,11 @@ It features an extensive cache, which will [calculate hollidays](src/holiday.rs)
 
 Change the rates for the perspective of any currency with the `--perspective` or `-p` flag.
 
-Flip it from `EUR to ALL` to `ALL to EUR` with the `--invert` or `-i` flag. It will work as expected with the *perspective* option.
+Flip it from `EUR to ALL` to `ALL to EUR` with the `--invert` or `-i` flag. It will work as expected with the _perspective_ option.
 
 #### Fast
 
-It wouldn't be a rust project without being *BLAZINGLY FAST*! When the cache is valid a single day will on my computer be shown in 3 ms. When the cache isn't being used it will be ~90ms. The cache speed will largely depend on your drive, the latter will depend on your network speed. Both options are fast enought to be in a `.bashrc` or `.zshrc`
+It wouldn't be a rust project without being _BLAZINGLY FAST_! When the cache is valid a single day will on my computer be shown in 3 ms. When the cache isn't being used it will be ~90ms. The cache speed will largely depend on your drive, the latter will depend on your network speed. Both options are fast enought to be in a `.bashrc` or `.zshrc`
 
 ### Examples
 
