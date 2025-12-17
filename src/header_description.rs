@@ -7,6 +7,12 @@ pub struct HeaderDescription<'a> {
     header_description: [&'a str; 2],
 }
 
+impl<'a> Default for HeaderDescription<'a> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<'a> HeaderDescription<'a> {
     pub fn new() -> Self {
         Self {

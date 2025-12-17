@@ -78,7 +78,7 @@ impl<'a> TableGet for TableRef<'a> {
     fn get_width(&self) -> usize {
         self.width
     }
-    
+
     fn get_left_offset(&self) -> usize {
         self.left_offset
     }

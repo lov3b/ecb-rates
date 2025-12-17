@@ -68,12 +68,11 @@ pub fn parse(xml: &str) -> anyhow::Result<Vec<ExchangeRateResult>> {
             *inside_cube_time = true;
         }
 
-        if *inside_cube_time {
-            if let (Some(c), Some(r_str)) = (currency_attr, rate_attr) {
+        if *inside_cube_time
+            && let (Some(c), Some(r_str)) = (currency_attr, rate_attr) {
                 let r = r_str.parse::<f64>()?;
                 current_rates.insert(c, r);
             }
-        }
 
         Ok(())
     }

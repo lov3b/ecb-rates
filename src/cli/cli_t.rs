@@ -1,11 +1,10 @@
-use clap::{arg, Parser, ValueEnum};
+use clap::{Parser, ValueEnum};
 use smol_str::SmolStr;
 
 use super::{ShowDays, SortBy};
 
 #[derive(Debug, Parser)]
 #[command(author, version, about)]
-
 pub struct Cli {
     /// Which currencies do you want to fetch rates for?
     #[arg(long = "currencies", short = 'c')]
@@ -42,7 +41,7 @@ pub struct Cli {
     #[arg(long = "invert", short = 'i')]
     pub should_invert: bool,
 
-    //// Max decimals to keep in price.
+    /// Max decimals to keep in price.
     #[arg(long = "max-decimals", short = 'd', default_value_t = 5)]
     pub max_decimals: u8,
 

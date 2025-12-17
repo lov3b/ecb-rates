@@ -2,7 +2,7 @@
 name = "ecb-rates"
 description = "Query exchange rates from the European Central Bank (ECB)"
 version = "1.0.1"
-edition = "2021"
+edition = "2024"
 authors = ["Love Billenius <lovebillenius@disroot.org>"]
 license = "Zlib"
 keywords = [
@@ -13,7 +13,7 @@ keywords = [
     "rates",
 ]
 repository = "https://github.com/lov3b/ecb-rates"
-rust-version = "1.83"
+rust-version = "1.92"
 categories = ["finance", "command-line-utilities"]
 
 [profile.release]

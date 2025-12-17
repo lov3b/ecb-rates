@@ -134,14 +134,14 @@ mod tests {
     #[should_panic]
     fn test_year_too_low() {
         disable_panic_stack_trace();
-        let _ = Hollidays::new(1000); 
+        let _ = Hollidays::new(1000);
     }
 
     #[test]
     #[should_panic]
     fn test_year_too_high() {
         disable_panic_stack_trace();
-        let _ = Hollidays::new(9999); 
+        let _ = Hollidays::new(9999);
     }
 
     fn disable_panic_stack_trace() {

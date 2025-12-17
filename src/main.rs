@@ -1,5 +1,5 @@
 use clap::Parser as _;
-use ecb_rates::cache::{Cache, CacheLine};
+use ecb_rates::caching::{Cache, CacheLine};
 use ecb_rates::HeaderDescription;
 use reqwest::{Client, IntoUrl};
 use smol_str::StrExt;
@@ -66,23 +66,22 @@ async fn main() -> ExitCode {
                 },
             );
 
-            if not_equal_cache {
-                if let Some(cache_safe) = cache.as_mut() {
+            if not_equal_cache
+                && let Some(cache_safe) = cache.as_mut() {
                     let cache_line = CacheLine::new(parsed.clone());
                     cache_safe.set_cache_line(cache_line);
                     if let Err(e) = cache_safe.save() {
                         eprintln!("Failed to save to cache with: {:?}", e);
                     }
                 }
-            }
         }
         parsed
     };
 
     cli.perspective = cli.perspective.map(|s| s.to_uppercase_smolstr());
     if let Some(currency) = cli.perspective.as_ref() {
-        header_description.replace_eur(&currency);
-        let error_occured = change_perspective(&mut parsed, &currency).is_none();
+        header_description.replace_eur(currency);
+        let error_occured = change_perspective(&mut parsed, currency).is_none();
         if error_occured {
             eprintln!("The currency wasn't in the data from the ECB!");
             return ExitCode::FAILURE;
