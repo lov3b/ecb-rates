@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
 use crate::cli::SortBy;
-use crate::models::ExchangeRateResult;
+use crate::models::{Currency, ExchangeRateResult};
 use crate::DEFAULT_WIDTH;
 
 use super::table_display::helper_table_print;
@@ -13,7 +13,7 @@ pub struct TableRef<'a> {
     header: Option<&'a str>,
     column_left: &'a str,
     column_right: &'a str,
-    rows: Vec<(&'a str, f64)>,
+    rows: Vec<(&'a Currency, f64)>,
     pub color: bool,
     pub width: usize,
     pub left_offset: usize,
@@ -23,7 +23,7 @@ impl<'a> TableTrait<'a> for TableRef<'a> {
     type Header = &'a str;
     type ColumnLeft = &'a str;
     type ColumnRight = &'a str;
-    type RowLeft = &'a str;
+    type RowLeft = &'a Currency;
 
     fn new(
         header: Option<Self::Header>,
@@ -60,7 +60,7 @@ impl<'a> TableTrait<'a> for TableRef<'a> {
 }
 
 impl<'a> TableGet for TableRef<'a> {
-    type RowLeftRef = &'a str;
+    type RowLeftRef = &'a Currency;
     type RowRightRef = &'a str;
 
     fn get_header(&self) -> Option<&str> {
@@ -78,7 +78,7 @@ impl<'a> TableGet for TableRef<'a> {
     fn get_width(&self) -> usize {
         self.width
     }
-    
+
     fn get_left_offset(&self) -> usize {
         self.left_offset
     }
@@ -106,7 +106,7 @@ impl<'a> From<&'a Table> for TableRef<'a> {
         let rows = table
             .rows
             .iter()
-            .map(|(left, right)| (left.as_str(), *right))
+            .map(|(left, right)| (left, *right))
             .collect();
 
         TableRef {

@@ -1,10 +1,13 @@
-use std::{borrow::BorrowMut, collections::HashMap, ops::Deref};
+use std::{borrow::BorrowMut, collections::HashMap, ops::Deref, str::FromStr};
 
-use crate::models::ExchangeRateResult;
+use crate::models::{Currency, ExchangeRateResult};
 
-pub fn filter_currencies(exchange_rate_results: &mut [ExchangeRateResult], currencies: &[String]) {
+pub fn filter_currencies(
+    exchange_rate_results: &mut [ExchangeRateResult],
+    currencies: &[Currency],
+) {
     for exchange_rate in exchange_rate_results {
-        let rates_ptr: *mut HashMap<String, f64> = &mut exchange_rate.rates;
+        let rates_ptr: *mut HashMap<Currency, f64> = &mut exchange_rate.rates;
         exchange_rate
             .rates
             .keys()
@@ -22,7 +25,7 @@ pub fn filter_currencies(exchange_rate_results: &mut [ExchangeRateResult], curre
 
 pub fn change_perspective(
     exchange_rate_results: &mut [ExchangeRateResult],
-    currency: &str,
+    currency: &Currency,
 ) -> Option<()> {
     for rate_res in exchange_rate_results {
         let currency_rate = rate_res.rates.remove(currency)?;
@@ -32,7 +35,10 @@ pub fn change_perspective(
             *iter_rate = eur_rate * iter_rate.deref();
         }
 
-        rate_res.rates.insert("EUR".to_string(), eur_rate);
+        rate_res.rates.insert(
+            unsafe { Currency::from_str("EUR").unwrap_unchecked() },
+            eur_rate,
+        );
     }
     Some(())
 }

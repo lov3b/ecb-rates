@@ -1,9 +1,9 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, str::FromStr};
 
 use quick_xml::events::Event;
 use quick_xml::Reader;
 
-use crate::models::ExchangeRateResult;
+use crate::models::{Currency, ExchangeRateResult};
 
 pub fn parse(xml: &str) -> anyhow::Result<Vec<ExchangeRateResult>> {
     let mut reader = Reader::from_str(xml);
@@ -18,7 +18,7 @@ pub fn parse(xml: &str) -> anyhow::Result<Vec<ExchangeRateResult>> {
         e: &quick_xml::events::BytesStart,
         current_time: &mut Option<String>,
         inside_cube_time: &mut bool,
-        current_rates: &mut HashMap<String, f64>,
+        current_rates: &mut HashMap<Currency, f64>,
         results: &mut Vec<ExchangeRateResult>,
     ) -> anyhow::Result<()> {
         if e.name().local_name().as_ref() != b"Cube" {
@@ -26,7 +26,7 @@ pub fn parse(xml: &str) -> anyhow::Result<Vec<ExchangeRateResult>> {
         }
 
         let mut time_attr: Option<String> = None;
-        let mut currency_attr: Option<String> = None;
+        let mut currency_attr: Option<Currency> = None;
         let mut rate_attr: Option<String> = None;
 
         for attr_result in e.attributes() {
@@ -39,7 +39,7 @@ pub fn parse(xml: &str) -> anyhow::Result<Vec<ExchangeRateResult>> {
                     time_attr = Some(val);
                 }
                 b"currency" => {
-                    currency_attr = Some(val);
+                    currency_attr = Some(Currency::from_str(&val)?);
                 }
                 b"rate" => {
                     rate_attr = Some(val);

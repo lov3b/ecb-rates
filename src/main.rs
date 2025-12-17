@@ -3,9 +3,10 @@ use ecb_rates::cache::{Cache, CacheLine};
 use ecb_rates::HeaderDescription;
 use reqwest::{Client, IntoUrl};
 use std::process::ExitCode;
+use std::str::FromStr;
 
 use ecb_rates::cli::{Cli, FormatOption};
-use ecb_rates::models::ExchangeRateResult;
+use ecb_rates::models::{Currency, ExchangeRateResult};
 use ecb_rates::parsing::parse;
 use ecb_rates::table::{TableRef, TableTrait as _};
 use ecb_rates::utils_calc::{change_perspective, filter_currencies, invert_rates, round};
@@ -79,8 +80,18 @@ async fn main() -> ExitCode {
     };
 
     cli.perspective = cli.perspective.map(|s| s.to_uppercase());
-    if let Some(currency) = cli.perspective.as_ref() {
-        header_description.replace_eur(&currency);
+    let parsed_currency = match cli.perspective.as_ref() {
+        Some(currency) => match Currency::from_str(currency) {
+            Ok(k) => Some(k),
+            Err(e) => {
+                eprintln!("The currency code '{}' is invalid: {:?}", currency, e);
+                return ExitCode::FAILURE;
+            }
+        },
+        None => None,
+    };
+    if let Some(currency) = parsed_currency.as_ref() {
+        header_description.replace_eur(currency.as_ref());
         let error_occured = change_perspective(&mut parsed, &currency).is_none();
         if error_occured {
             eprintln!("The currency wasn't in the data from the ECB!");
@@ -96,11 +107,19 @@ async fn main() -> ExitCode {
     round(&mut parsed, cli.max_decimals);
 
     if !cli.currencies.is_empty() {
-        let currencies = cli
+        let currencies = match cli
             .currencies
             .iter()
             .map(|x| x.to_uppercase())
-            .collect::<Vec<_>>();
+            .map(|x| Currency::from_str(&x))
+            .collect::<anyhow::Result<Vec<_>>>()
+        {
+            Ok(k) => k,
+            Err(e) => {
+                eprintln!("Failed to parse currenc(y/ies): {:?}", e);
+                return ExitCode::FAILURE;
+            }
+        };
 
         filter_currencies(&mut parsed, &currencies);
     }

@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
 use crate::cli::SortBy;
-use crate::models::ExchangeRateResult;
+use crate::models::{Currency, ExchangeRateResult};
 use crate::DEFAULT_WIDTH;
 
 use super::table_display::helper_table_print;
@@ -11,7 +11,7 @@ pub struct Table {
     pub(super) header: Option<String>,
     pub(super) column_left: String,
     pub(super) column_right: String,
-    pub(super) rows: Vec<(String, f64)>,
+    pub(super) rows: Vec<(Currency, f64)>,
     pub color: bool,
     pub width: usize,
     pub left_offset: usize,
@@ -21,7 +21,7 @@ impl<'a> TableTrait<'a> for Table {
     type Header = String;
     type ColumnLeft = String;
     type ColumnRight = String;
-    type RowLeft = String;
+    type RowLeft = Currency;
 
     fn new(
         header: Option<Self::Header>,
@@ -59,7 +59,7 @@ impl<'a> TableTrait<'a> for Table {
 }
 
 impl TableGet for Table {
-    type RowLeftRef = String;
+    type RowLeftRef = Currency;
     type RowRightRef = String;
 
     fn get_header(&self) -> Option<&str> {
@@ -77,7 +77,7 @@ impl TableGet for Table {
     fn get_width(&self) -> usize {
         self.width
     }
-    
+
     fn get_left_offset(&self) -> usize {
         self.left_offset
     }
