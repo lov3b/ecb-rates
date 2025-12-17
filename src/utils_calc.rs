@@ -1,10 +1,12 @@
 use std::{borrow::BorrowMut, collections::HashMap, ops::Deref};
 
+use smol_str::SmolStr;
+
 use crate::models::ExchangeRateResult;
 
-pub fn filter_currencies(exchange_rate_results: &mut [ExchangeRateResult], currencies: &[String]) {
+pub fn filter_currencies(exchange_rate_results: &mut [ExchangeRateResult], currencies: &[SmolStr]) {
     for exchange_rate in exchange_rate_results {
-        let rates_ptr: *mut HashMap<String, f64> = &mut exchange_rate.rates;
+        let rates_ptr: *mut HashMap<_, _> = &mut exchange_rate.rates;
         exchange_rate
             .rates
             .keys()
@@ -32,7 +34,7 @@ pub fn change_perspective(
             *iter_rate = eur_rate * iter_rate.deref();
         }
 
-        rate_res.rates.insert("EUR".to_string(), eur_rate);
+        rate_res.rates.insert("EUR".into(), eur_rate);
     }
     Some(())
 }

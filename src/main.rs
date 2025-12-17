@@ -2,6 +2,7 @@ use clap::Parser as _;
 use ecb_rates::cache::{Cache, CacheLine};
 use ecb_rates::HeaderDescription;
 use reqwest::{Client, IntoUrl};
+use smol_str::StrExt;
 use std::process::ExitCode;
 
 use ecb_rates::cli::{Cli, FormatOption};
@@ -78,7 +79,7 @@ async fn main() -> ExitCode {
         parsed
     };
 
-    cli.perspective = cli.perspective.map(|s| s.to_uppercase());
+    cli.perspective = cli.perspective.map(|s| s.to_uppercase_smolstr());
     if let Some(currency) = cli.perspective.as_ref() {
         header_description.replace_eur(&currency);
         let error_occured = change_perspective(&mut parsed, &currency).is_none();
@@ -99,7 +100,7 @@ async fn main() -> ExitCode {
         let currencies = cli
             .currencies
             .iter()
-            .map(|x| x.to_uppercase())
+            .map(|x| x.to_uppercase_smolstr())
             .collect::<Vec<_>>();
 
         filter_currencies(&mut parsed, &currencies);

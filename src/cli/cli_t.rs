@@ -1,4 +1,5 @@
 use clap::{arg, Parser, ValueEnum};
+use smol_str::SmolStr;
 
 use super::{ShowDays, SortBy};
 
@@ -8,7 +9,7 @@ use super::{ShowDays, SortBy};
 pub struct Cli {
     /// Which currencies do you want to fetch rates for?
     #[arg(long = "currencies", short = 'c')]
-    pub currencies: Vec<String>,
+    pub currencies: Vec<SmolStr>,
 
     #[arg(value_enum, default_value_t = FormatOption::Plain)]
     pub command: FormatOption,
@@ -35,7 +36,7 @@ pub struct Cli {
 
     /// Recalculate to the perspective from an included currency
     #[arg(long = "perspective", short = 'p')]
-    pub perspective: Option<String>,
+    pub perspective: Option<SmolStr>,
 
     /// Invert the rate
     #[arg(long = "invert", short = 'i')]
