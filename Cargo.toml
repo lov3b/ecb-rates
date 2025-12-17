@@ -16,6 +16,10 @@ repository = "https://github.com/lov3b/ecb-rates"
 rust-version = "1.83"
 categories = ["finance", "command-line-utilities"]
 
+[profile.release]
+codegen-units = 1
+lto = true
+
 [[bin]]
 name = "ecb-rates"
 path = "src/main.rs"
