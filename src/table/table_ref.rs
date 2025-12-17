@@ -1,13 +1,13 @@
 use std::fmt::Display;
 
+use crate::DEFAULT_WIDTH;
 use crate::cli::SortBy;
 use crate::models::ExchangeRateResult;
-use crate::DEFAULT_WIDTH;
 
+use super::Table;
 use super::table_display::helper_table_print;
 use super::table_getter::TableGet;
 use super::table_trait::TableTrait;
-use super::Table;
 
 pub struct TableRef<'a> {
     header: Option<&'a str>,

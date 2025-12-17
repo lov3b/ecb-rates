@@ -3,8 +3,8 @@ use std::io::{BufReader, BufWriter};
 use std::path::{Path, PathBuf};
 
 use super::CacheLine;
-use crate::os::Os;
 use crate::View;
+use crate::os::Os;
 
 #[derive(Debug)]
 pub struct Cache {

@@ -2,9 +2,9 @@ use std::fmt::Display;
 
 use smol_str::SmolStr;
 
+use crate::DEFAULT_WIDTH;
 use crate::cli::SortBy;
 use crate::models::ExchangeRateResult;
-use crate::DEFAULT_WIDTH;
 
 use super::table_display::helper_table_print;
 use super::{TableGet, TableTrait};

@@ -1,3 +1,4 @@
+use anyhow::Context;
 use clap::Parser as _;
 use ecb_rates::caching::{Cache, CacheLine};
 use ecb_rates::HeaderDescription;
@@ -17,22 +18,40 @@ async fn get_and_parse(url: impl IntoUrl) -> anyhow::Result<Vec<ExchangeRateResu
     parse(&xml_content)
 }
 
-#[tokio::main(flavor = "current_thread")]
-async fn main() -> ExitCode {
-    let mut cli = Cli::parse();
+fn main() -> ExitCode {
+    let cli = Cli::parse();
+
+    let runtime = match tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+    {
+        Ok(runtime) => runtime,
+        Err(e) => {
+            eprintln!("Failed to initialize asynchronous runtime: {:?}", e);
+            return ExitCode::FAILURE;
+        }
+    };
+
+    match runtime.block_on(async_main(cli)) {
+        Ok(_) => ExitCode::SUCCESS,
+        Err(e) => {
+            eprintln!("Fatal: {:?}", e);
+            ExitCode::FAILURE
+        }
+    }
+}
+
+async fn async_main(mut cli: Cli) -> anyhow::Result<()> {
     if cli.force_color {
         colored::control::set_override(true);
     }
 
     let mut header_description = HeaderDescription::new();
     let use_cache = !cli.no_cache;
-    let view = match cli.show_days.to_view() {
-        Some(v) => v,
-        None => {
-            eprintln!("It doesn't make any sence to fetch 0 days right?");
-            return ExitCode::SUCCESS;
-        }
-    };
+    let view = cli
+        .show_days
+        .to_view()
+        .context("It doesn't make any sence to fetch 0 days right?")?;
     let mut cache = if use_cache { Cache::load(&view) } else { None };
     let cache_ok = cache.as_ref().map_or_else(
         || false,
@@ -48,14 +67,9 @@ async fn main() -> ExitCode {
             .exchange_rate_results
             .clone()
     } else {
-        let parsed = match get_and_parse(view.to_ecb_url()).await {
-            Ok(k) => k,
-            Err(e) => {
-                eprintln!("Failed to get/parse data from ECB: {}", e);
-                return ExitCode::FAILURE;
-            }
-        };
-
+        let parsed = get_and_parse(view.to_ecb_url())
+            .await
+            .context("Failed to get/parse data from ECB")?;
         if !cache_ok {
             let not_equal_cache = cache.as_ref().map_or_else(
                 || true,
@@ -66,14 +80,11 @@ async fn main() -> ExitCode {
                 },
             );
 
-            if not_equal_cache
-                && let Some(cache_safe) = cache.as_mut() {
-                    let cache_line = CacheLine::new(parsed.clone());
-                    cache_safe.set_cache_line(cache_line);
-                    if let Err(e) = cache_safe.save() {
-                        eprintln!("Failed to save to cache with: {:?}", e);
-                    }
-                }
+            if not_equal_cache && let Some(cache_safe) = cache.as_mut() {
+                let cache_line = CacheLine::new(parsed.clone());
+                cache_safe.set_cache_line(cache_line);
+                cache_safe.save()?;
+            }
         }
         parsed
     };
@@ -81,11 +92,8 @@ async fn main() -> ExitCode {
     cli.perspective = cli.perspective.map(|s| s.to_uppercase_smolstr());
     if let Some(currency) = cli.perspective.as_ref() {
         header_description.replace_eur(currency);
-        let error_occured = change_perspective(&mut parsed, currency).is_none();
-        if error_occured {
-            eprintln!("The currency wasn't in the data from the ECB!");
-            return ExitCode::FAILURE;
-        }
+        change_perspective(&mut parsed, currency)
+            .context("The currency wasn't in the data from the ECB!")?;
     }
 
     if cli.should_invert {
@@ -160,5 +168,5 @@ async fn main() -> ExitCode {
     };
 
     println!("{}", &output);
-    ExitCode::SUCCESS
+    Ok(())
 }

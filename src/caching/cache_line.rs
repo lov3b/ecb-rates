@@ -4,8 +4,8 @@ use chrono::serde::ts_seconds;
 use chrono::{DateTime, Datelike, FixedOffset, Local, NaiveDate, TimeDelta, Utc, Weekday};
 use serde::{Deserialize, Serialize};
 
-use crate::models::ExchangeRateResult;
 use crate::Hollidays;
+use crate::models::ExchangeRateResult;
 
 const CET: FixedOffset = unsafe { FixedOffset::east_opt(3600).unwrap_unchecked() };
 
